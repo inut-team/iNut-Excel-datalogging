@@ -1,1 +1,196 @@
-[]
+[
+    {
+        "id": "a9319e33.81a7",
+        "type": "tab",
+        "label": "Flow 1",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "a1a3e73c.ed3a68",
+        "type": "mqtt-broker",
+        "name": "",
+        "broker": "mqtt.mysmarthome.vn",
+        "port": "1883",
+        "clientid": "",
+        "usetls": false,
+        "compatmode": true,
+        "keepalive": "60",
+        "cleansession": true,
+        "willTopic": "",
+        "willQos": "0",
+        "willPayload": "",
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthPayload": ""
+    },
+    {
+        "id": "b3d0bd6d.0db67",
+        "type": "function",
+        "z": "a9319e33.81a7",
+        "name": "Xuất file csv [Đối với excel dùng dấu phẩy \",\"]",
+        "func": "var state = (new Date()).toString()\nvar comma = \", \"\nvar titles_count = msg.title.split(',').length\n\nfor(var i = 0; i < msg.payload.length && i < titles_count - 1; i++)\n{\n    state += comma\n    state += msg.payload[i].state\n    \n}\nmsg.payload = state\nvar m = new Date()\nvar y = m.getFullYear().toString()\nvar d\nif(m.getDate()< 10){\n d = '0' + m.getDate().toString()\n}\nelse {\nd = m.getDate().toString()\n}\nvar mon = m.getMonth() +1\nvar month\nif(mon < 10){\n month = '0' + mon.toString()\n}\nelse {\nmonth = mon.toString()\n}\nmsg.content = msg.payload\nvar n = y + '-' + month + '-' + d + \".csv\"\nmsg.filename = n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 780,
+        "y": 1020,
+        "wires": [
+            [
+                "d3c32cf0.b3fe9"
+            ]
+        ]
+    },
+    {
+        "id": "9e92f91a.24c1b8",
+        "type": "json",
+        "z": "a9319e33.81a7",
+        "name": "",
+        "property": "payload",
+        "action": "",
+        "pretty": false,
+        "x": 330,
+        "y": 1020,
+        "wires": [
+            [
+                "79f24423.c2ff5c"
+            ]
+        ]
+    },
+    {
+        "id": "575b18f4.db38e8",
+        "type": "mqtt in",
+        "z": "a9319e33.81a7",
+        "name": "[MQTT-IN]iNut cảm biến - iNut S1",
+        "topic": "",
+        "qos": "2",
+        "broker": "a1a3e73c.ed3a68",
+        "x": 130,
+        "y": 1020,
+        "wires": [
+            [
+                "9e92f91a.24c1b8"
+            ]
+        ]
+    },
+    {
+        "id": "69cf9e8f.6dd1",
+        "type": "file",
+        "z": "a9319e33.81a7",
+        "name": "Ghi file",
+        "filename": "",
+        "appendNewline": true,
+        "createDir": true,
+        "overwriteFile": "false",
+        "x": 1350,
+        "y": 1020,
+        "wires": []
+    },
+    {
+        "id": "d3c32cf0.b3fe9",
+        "type": "file in",
+        "z": "a9319e33.81a7",
+        "name": "Mở file",
+        "filename": "",
+        "format": "utf8",
+        "chunk": false,
+        "sendError": true,
+        "x": 1030,
+        "y": 1020,
+        "wires": [
+            [
+                "7fb256f5.d8d7d8"
+            ]
+        ]
+    },
+    {
+        "id": "79f24423.c2ff5c",
+        "type": "change",
+        "z": "a9319e33.81a7",
+        "name": "Đặt tiêu đề excel",
+        "rules": [
+            {
+                "t": "set",
+                "p": "title",
+                "pt": "msg",
+                "to": "Date, flow 1, flow 2, flow 3, flow 4, flow 5, flow 6, flow 7, flow 8",
+                "tot": "str"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 490,
+        "y": 1020,
+        "wires": [
+            [
+                "b3d0bd6d.0db67"
+            ]
+        ]
+    },
+    {
+        "id": "7fb256f5.d8d7d8",
+        "type": "function",
+        "z": "a9319e33.81a7",
+        "name": "Kiểm tra nội dung",
+        "func": "if (msg.payload && msg.payload.length > 10) {\n    msg.payload = msg.content\n} else {\n    msg.payload = msg.title + \"\\n\" + msg.content\n}\nreturn msg",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 1190,
+        "y": 1020,
+        "wires": [
+            [
+                "69cf9e8f.6dd1"
+            ]
+        ]
+    },
+    {
+        "id": "78cf613d.2f7d2",
+        "type": "inject",
+        "z": "a9319e33.81a7",
+        "name": "",
+        "topic": "",
+        "payload": "[{\"state\": 1}]",
+        "payloadType": "str",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "x": 170,
+        "y": 1160,
+        "wires": [
+            [
+                "9e92f91a.24c1b8"
+            ]
+        ]
+    },
+    {
+        "id": "342f0c5a.8932c4",
+        "type": "catch",
+        "z": "a9319e33.81a7",
+        "name": "",
+        "scope": null,
+        "x": 760,
+        "y": 860,
+        "wires": [
+            [
+                "b7f7e1d8.89414"
+            ]
+        ]
+    },
+    {
+        "id": "b7f7e1d8.89414",
+        "type": "debug",
+        "z": "a9319e33.81a7",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "x": 920,
+        "y": 860,
+        "wires": []
+    }
+]
