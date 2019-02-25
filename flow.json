@@ -29,11 +29,11 @@
         "type": "function",
         "z": "a9319e33.81a7",
         "name": "Xuất file csv [Đối với excel dùng dấu phẩy \",\"]",
-        "func": "var state = (new Date()).toString()\nvar comma = \", \"\nvar titles_count = msg.title.split(',').length\n\nfor(var i = 0; i < msg.payload.length && i < titles_count - 1; i++)\n{\n    state += comma\n    state += msg.payload[i].state\n    \n}\nmsg.payload = state\nvar m = new Date()\nvar y = m.getFullYear().toString()\nvar d\nif(m.getDate()< 10){\n d = '0' + m.getDate().toString()\n}\nelse {\nd = m.getDate().toString()\n}\nvar mon = m.getMonth() +1\nvar month\nif(mon < 10){\n month = '0' + mon.toString()\n}\nelse {\nmonth = mon.toString()\n}\nmsg.content = msg.payload\nvar n = y + '-' + month + '-' + d + \".csv\"\nmsg.filename = n\nreturn msg;",
+        "func": "var state = (new Date()).toString()\nvar comma = \", \"\nvar titles_count = msg.title.split(',').length\nvar hash  = \"\"\nfor(var i = 0; i < msg.payload.length && i < titles_count - 1; i++)\n{\n    state += comma\n    state += msg.payload[i].state\n    hash += msg.payload[i].state\n}\nmsg.hash = hash \nmsg.payload = state\nvar m = new Date()\nvar y = m.getFullYear().toString()\nvar d\nif(m.getDate()< 10){\n d = '0' + m.getDate().toString()\n}\nelse {\nd = m.getDate().toString()\n}\nvar mon = m.getMonth() +1\nvar month\nif(mon < 10){\n month = '0' + mon.toString()\n}\nelse {\nmonth = mon.toString()\n}\nmsg.content = msg.payload\nvar n = y + '-' + month + '-' + d + \".csv\"\nmsg.filename = n\nreturn msg;",
         "outputs": 1,
         "noerr": 0,
         "x": 780,
-        "y": 1020,
+        "y": 500,
         "wires": [
             [
                 "d3c32cf0.b3fe9"
@@ -49,7 +49,7 @@
         "action": "",
         "pretty": false,
         "x": 330,
-        "y": 1020,
+        "y": 500,
         "wires": [
             [
                 "79f24423.c2ff5c"
@@ -65,7 +65,7 @@
         "qos": "2",
         "broker": "a1a3e73c.ed3a68",
         "x": 130,
-        "y": 1020,
+        "y": 500,
         "wires": [
             [
                 "9e92f91a.24c1b8"
@@ -81,8 +81,8 @@
         "appendNewline": true,
         "createDir": true,
         "overwriteFile": "false",
-        "x": 1350,
-        "y": 1020,
+        "x": 1410,
+        "y": 500,
         "wires": []
     },
     {
@@ -95,7 +95,7 @@
         "chunk": false,
         "sendError": true,
         "x": 1030,
-        "y": 1020,
+        "y": 500,
         "wires": [
             [
                 "7fb256f5.d8d7d8"
@@ -122,7 +122,7 @@
         "to": "",
         "reg": false,
         "x": 490,
-        "y": 1020,
+        "y": 500,
         "wires": [
             [
                 "b3d0bd6d.0db67"
@@ -133,35 +133,15 @@
         "id": "7fb256f5.d8d7d8",
         "type": "function",
         "z": "a9319e33.81a7",
-        "name": "Kiểm tra nội dung",
-        "func": "if (msg.payload && msg.payload.length > 10) {\n    msg.payload = msg.content\n} else {\n    msg.payload = msg.title + \"\\n\" + msg.content\n}\nreturn msg",
+        "name": "Kiểm tra nội dung và chặn ",
+        "func": "if (msg.payload && msg.payload.length > 10) {\n    msg.payload = msg.content\n    var oldHash = flow.get(msg.topic + 'hash') || ''\n    if (msg.hash != oldHash)  {\n        flow.set(msg.topic + 'hash', msg.hash )\n    \n        return msg\n    }\n    \n} else {\n    msg.payload = msg.title + \"\\n\" + msg.content\n    return msg\n    \n}\n\n",
         "outputs": 1,
         "noerr": 0,
-        "x": 1190,
-        "y": 1020,
+        "x": 1220,
+        "y": 500,
         "wires": [
             [
                 "69cf9e8f.6dd1"
-            ]
-        ]
-    },
-    {
-        "id": "78cf613d.2f7d2",
-        "type": "inject",
-        "z": "a9319e33.81a7",
-        "name": "",
-        "topic": "",
-        "payload": "[{\"state\": 1}]",
-        "payloadType": "str",
-        "repeat": "",
-        "crontab": "",
-        "once": false,
-        "onceDelay": 0.1,
-        "x": 170,
-        "y": 1160,
-        "wires": [
-            [
-                "9e92f91a.24c1b8"
             ]
         ]
     },
@@ -172,7 +152,7 @@
         "name": "",
         "scope": null,
         "x": 760,
-        "y": 860,
+        "y": 340,
         "wires": [
             [
                 "b7f7e1d8.89414"
@@ -190,7 +170,7 @@
         "tostatus": false,
         "complete": "false",
         "x": 920,
-        "y": 860,
+        "y": 340,
         "wires": []
     }
 ]
